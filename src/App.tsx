@@ -1,24 +1,22 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import BottomBar from './components/BottomBar';
+import OsaeKomi from './components/OsaeKomi';
+import TopBar from './components/TopBar';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="h-screen w-screen bg-zinc-700 grid grid-rows-3">
+				<div className="my-10">
+					<TopBar />
+				</div>
+        <div className="my-auto">
+					<OsaeKomi />
+				</div>
+				<div className="my-10">
+					<BottomBar />
+				</div>
+      </div>
     </div>
   );
 }
