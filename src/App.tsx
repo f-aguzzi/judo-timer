@@ -13,7 +13,7 @@ function App() {
 	const [ipponTime, setIpponTime] = useState(20);
 
 	// State
-	const [seconds, setSeconds] = useState(120);
+	const [seconds, setSeconds] = useState(totalTime);
 	const [active, setActive] = useState(false);
 
 	// State - White Belt
@@ -48,22 +48,54 @@ function App() {
 
 
 	// Functions
+	const log = () => {
+
+	}
+
 	const reset = () => {
+		log();
+
+		// Main state
 		setSeconds(totalTime);
+		setActive(false);
+
+		// White belt - state
+		setIppon1(0);
+		setWazaari1(0);
+		setShido1(0);
+		setOsaeKomi1_t(false);
+		setOsaeKomiTime1(0);
+
+		// Red belt  - state
+		setIppon2(0);
+		setWazaari2(0);
+		setShido2(0);
+		setOsaeKomi2_t(false);
+		setOsaeKomiTime2(0);
 	}
 
 	const toggle = () => {
+		if (active === false) {
+			setOsaeKomi1_t(false);
+			setOsaeKomi2_t(false);
+			setOsaeKomiTime1(0);
+			setOsaeKomiTime2(0);
+		}
+
 		setActive(!active);
 	}
 
+	// Main timer
 	useEffect(() => {
 		let interval: any;
-		if (active) {
+		if (active && seconds > 0) {
 			interval = setInterval(() => {
 				setSeconds(seconds => seconds - 1);
 		  	}, 1000);
 		} else if (!active && seconds !== 0) {
 			clearInterval(interval);
+		} else if (active && seconds === 0) {
+			return;
 		}
 		return () => clearInterval(interval);
 	}, [active, seconds]);
@@ -71,13 +103,15 @@ function App() {
 	// OsaeKomi for white belt
 	useEffect(() => {
 		let interval1: any;
-		if (osaeKomi1) {
+		if (osaeKomi1 && (active === true)) {
 			interval1 = setInterval(() => {
 				setOsaeKomiTime1(seconds => seconds + 1);
 		  	}, 1000);
 		} else if (!osaeKomi1 && osaeKomiTime1 !== 0) {
 			clearInterval(interval1);
 			setOsaeKomiTime1(0);
+		} else if (osaeKomi1 && (active === false)) {
+			return;
 		}
 		return () => clearInterval(interval1);
 	}, [osaeKomi1, osaeKomiTime1]);
@@ -85,13 +119,15 @@ function App() {
 	// OsaeKomi for red belt
 	useEffect(() => {
 		let interval2: any;
-		if (osaeKomi2) {
+		if (osaeKomi2 && (active === true)) {
 			interval2 = setInterval(() => {
 				setOsaeKomiTime2(seconds => seconds + 1);
 		  	}, 1000);
 		} else if (!osaeKomi2 && osaeKomiTime2 !== 0) {
 			clearInterval(interval2);
 			setOsaeKomiTime1(0);
+		} else if (osaeKomi2 && (active === false)) {
+			return;
 		}
 		return () => clearInterval(interval2);
 	}, [osaeKomi2, osaeKomiTime2]);
@@ -123,6 +159,8 @@ function App() {
 			}
 		}
 	}, [osaeKomi2, osaeKomiTime2]);
+
+	// Reset OsaeKomi when main timer starts
 
 
 
