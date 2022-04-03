@@ -9,12 +9,43 @@ function App() {
 
 	// Settings
 	const [totalTime, setTotalTime] = useState(120);
-	const [wazaari, setWazaari] = useState(10);
-	const [ippon, setIppon] = useState(20);
+	const [wazaariTime, setWazaariTime] = useState(10);
+	const [ipponTime, setIpponTime] = useState(20);
 
 	// State
 	const [seconds, setSeconds] = useState(120);
 	const [active, setActive] = useState(false);
+
+	// State - White Belt
+	const [osaeKomi1, setOsaeKomi1_t] = useState(false);
+	const [osaeKomiTime1, setOsaeKomiTime1] = useState(0);
+	const [ippon1, setIppon1] = useState(0);
+	const [wazaari1, setWazaari1] = useState(0);
+	const [shido1, setShido1] = useState(0);
+
+	// State - Red Belt
+	const [osaeKomi2, setOsaeKomi2_t] = useState(false);
+	const [osaeKomiTime2, setOsaeKomiTime2] = useState(0);
+	const [ippon2, setIppon2] = useState(0);
+	const [wazaari2, setWazaari2] = useState(0);
+	const [shido2, setShido2] = useState(0);
+
+	// Custom hooks
+	const setOsaeKomi1 = (e: boolean) => {
+		if (osaeKomi2 && e) {
+			setOsaeKomi2_t(false)
+		}
+		setOsaeKomi1_t(e);
+	}
+
+	const setOsaeKomi2 = (e: boolean) => {
+		if (osaeKomi1 && e) {
+			setOsaeKomi1_t(false)
+		}
+		setOsaeKomi2_t(e);
+	}
+
+
 
 	// Functions
 	const reset = () => {
@@ -28,14 +59,72 @@ function App() {
 	useEffect(() => {
 		let interval: any;
 		if (active) {
-		  interval = setInterval(() => {
-			setSeconds(seconds => seconds - 1);
-		  }, 1000);
+			interval = setInterval(() => {
+				setSeconds(seconds => seconds - 1);
+		  	}, 1000);
 		} else if (!active && seconds !== 0) {
-		  clearInterval(interval);
+			clearInterval(interval);
 		}
 		return () => clearInterval(interval);
-	  }, [active, seconds]);
+	}, [active, seconds]);
+
+	// OsaeKomi for white belt
+	useEffect(() => {
+		let interval1: any;
+		if (osaeKomi1) {
+			interval1 = setInterval(() => {
+				setOsaeKomiTime1(seconds => seconds + 1);
+		  	}, 1000);
+		} else if (!osaeKomi1 && osaeKomiTime1 !== 0) {
+			clearInterval(interval1);
+			setOsaeKomiTime1(0);
+		}
+		return () => clearInterval(interval1);
+	}, [osaeKomi1, osaeKomiTime1]);
+
+	// OsaeKomi for red belt
+	useEffect(() => {
+		let interval2: any;
+		if (osaeKomi2) {
+			interval2 = setInterval(() => {
+				setOsaeKomiTime2(seconds => seconds + 1);
+		  	}, 1000);
+		} else if (!osaeKomi2 && osaeKomiTime2 !== 0) {
+			clearInterval(interval2);
+			setOsaeKomiTime1(0);
+		}
+		return () => clearInterval(interval2);
+	}, [osaeKomi2, osaeKomiTime2]);
+
+	// Automatic scoring based on OsaeKomi time: white belt
+	useEffect(() => {
+		if (osaeKomi1) {
+			if (osaeKomiTime1 === wazaariTime) {
+				setWazaari1(wazaari1 + 1);
+			}
+			if (osaeKomiTime1 === ipponTime) {
+				setIppon1(1);
+				toggle();
+				setOsaeKomi1(false);
+			}
+		}
+	}, [osaeKomi1, osaeKomiTime1]);
+
+	// Automatic scoring based on OsaeKomi time: red belt
+	useEffect(() => {
+		if (osaeKomi2) {
+			if (osaeKomiTime2 === wazaariTime) {
+				setWazaari2(wazaari2 + 1);
+			}
+			if (osaeKomiTime2 === ipponTime) {
+				setIppon2(1);
+				toggle();
+				setOsaeKomi2(false);
+			}
+		}
+	}, [osaeKomi2, osaeKomiTime2]);
+
+
 
 	return (
     	<div className="App">
@@ -44,10 +133,28 @@ function App() {
 					<TopBar toggle={toggle} seconds={seconds} />
 				</div>
         		<div className="my-auto">
-					<OsaeKomi />
+					<OsaeKomi
+						osaeKomi1={osaeKomi1}
+						setOsaeKomi1={setOsaeKomi1}
+						osaeKomiTime1={osaeKomiTime1}
+						
+						osaeKomi2={osaeKomi2}
+						setOsaeKomi2={setOsaeKomi2}
+						osaeKomiTime2={osaeKomiTime2}
+					/>
 				</div>
 				<div className="my-10">
-					<BottomBar reset={reset} />
+					<BottomBar
+						reset={reset}
+
+						ippon1={ippon1}
+						wazaari1={wazaari1}
+						shido1={shido1}
+
+						ippon2={ippon2}
+						wazaari2={wazaari2}
+						shido2={shido2}
+					/>
 				</div>
       		</div>
    		</div>
