@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import BottomBar from './components/BottomBar';
 import OsaeKomi from './components/OsaeKomi';
 import TopBar from './components/TopBar';
-
-import { Settings } from './types/Settings';
+import VictoryBar from './components/VictoryBar';
+import { VictoryType, Winner } from './types/VictoryTypes';
 
 function App() {
 
@@ -15,6 +15,8 @@ function App() {
 	// State
 	const [seconds, setSeconds] = useState(totalTime);
 	const [active, setActive] = useState(false);
+	const [winner, setWinner] = useState(Winner.None);
+	const [victory, setVictory] = useState(VictoryType.None);
 
 	// State - White Belt
 	const [osaeKomi1, setOsaeKomi1_t] = useState(false);
@@ -30,7 +32,7 @@ function App() {
 	const [wazaari2, setWazaari2] = useState(0);
 	const [shido2, setShido2] = useState(0);
 
-	// Custom hooks
+	// Custom hooks: OsaeKomi cancel each other out
 	const setOsaeKomi1 = (e: boolean) => {
 		if (osaeKomi2 && e) {
 			setOsaeKomi2_t(false)
@@ -58,6 +60,8 @@ function App() {
 		// Main state
 		setSeconds(totalTime);
 		setActive(false);
+		setWinner(Winner.None);
+		setVictory(VictoryType.None);
 
 		// White belt - state
 		setIppon1(0);
@@ -114,7 +118,7 @@ function App() {
 			return;
 		}
 		return () => clearInterval(interval1);
-	}, [osaeKomi1, osaeKomiTime1]);
+	}, [osaeKomi1, osaeKomiTime1, active]);
 
 	// OsaeKomi for red belt
 	useEffect(() => {
@@ -130,39 +134,77 @@ function App() {
 			return;
 		}
 		return () => clearInterval(interval2);
-	}, [osaeKomi2, osaeKomiTime2]);
+	}, [osaeKomi2, osaeKomiTime2, active]);
 
-	// Automatic scoring based on OsaeKomi time: white belt
+	// Automatic scoring based on OsaeKomi time
 	useEffect(() => {
 		if (osaeKomi1) {
 			if (osaeKomiTime1 === wazaariTime) {
-				setWazaari1(wazaari1 + 1);
+				setWazaari1(w => w + 1);
 			}
 			if (osaeKomiTime1 === ipponTime) {
 				setIppon1(1);
 				toggle();
-				setOsaeKomi1(false);
+				setOsaeKomi1_t(false);
 			}
 		}
-	}, [osaeKomi1, osaeKomiTime1]);
-
-	// Automatic scoring based on OsaeKomi time: red belt
-	useEffect(() => {
 		if (osaeKomi2) {
 			if (osaeKomiTime2 === wazaariTime) {
-				setWazaari2(wazaari2 + 1);
+				setWazaari2(w => w + 1);
 			}
 			if (osaeKomiTime2 === ipponTime) {
 				setIppon2(1);
 				toggle();
-				setOsaeKomi2(false);
+				setOsaeKomi2_t(false);
 			}
 		}
-	}, [osaeKomi2, osaeKomiTime2]);
+	}, [osaeKomi1, osaeKomiTime1, osaeKomi2, osaeKomiTime2]);
 
-	// Reset OsaeKomi when main timer starts
+	// An ippon stops the game
+	useEffect(() => {
+		if (ippon1 === 1) {
+			setActive(false);
+			if (wazaari1 === 2) {
+				setVictory(VictoryType.WazaAriAwaSete);
+			} else {
+				setVictory(VictoryType.Ippon);
+			}
+			setWinner(Winner.White);
+		}
+		if (ippon2 === 1) {
+			setActive(false);
+			if (wazaari2 === 2) {
+				setVictory(VictoryType.WazaAriAwaSete);
+			} else {
+				setVictory(VictoryType.Ippon);
+			}
+			setWinner(Winner.Red);
+		}
+	},[ippon1, ippon2]);
+	
+	// 2 waza ari make an ippon
+	useEffect(() => {
+		if (wazaari1 === 2) {
+			setIppon1(1);
+		}
+		if (wazaari2 === 2) {
+			setIppon2(1);
+		}
+	}, [wazaari1, wazaari2]);
 
-
+	// 3 shido end the game
+	useEffect(() => {
+		if (shido1 === 3) {
+			setActive(false);
+			setVictory(VictoryType.HansokuMake);
+			setWinner(Winner.Red);
+		}
+		if (shido2 === 3) {
+			setActive(false);
+			setVictory(VictoryType.HansokuMake);
+			setWinner(Winner.White);
+		}
+	}, [shido1, shido2]);
 
 	return (
     	<div className="App">
@@ -170,6 +212,10 @@ function App() {
 				<div className="my-10">
 					<TopBar toggle={toggle} seconds={seconds} />
 				</div>
+				<VictoryBar
+					victory={victory}
+					winner={winner}
+				/>
         		<div className="my-auto">
 					<OsaeKomi
 						osaeKomi1={osaeKomi1}
@@ -188,10 +234,16 @@ function App() {
 						ippon1={ippon1}
 						wazaari1={wazaari1}
 						shido1={shido1}
+						setIppon1={setIppon1}
+						setWazaari1={setWazaari1}
+						setShido1={setShido1}
 
 						ippon2={ippon2}
 						wazaari2={wazaari2}
 						shido2={shido2}
+						setIppon2={setIppon2}
+						setWazaari2={setWazaari2}
+						setShido2={setShido2}
 					/>
 				</div>
       		</div>
