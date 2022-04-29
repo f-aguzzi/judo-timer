@@ -14,6 +14,10 @@ on the referee's behalf.
 	- *ippon* or two *waza ari*
 	- *kosoko make*
 
+### Future functionalities
+
+- automatic golden score determination
+
 
 ## Structure
 
